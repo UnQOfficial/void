@@ -17,7 +17,7 @@ A clear and concise description of what you want to happen.
 A clear and concise description of any alternative solutions or features you've considered.
 
 **Target environments**
-List any specific operating systems or environments this feature would be most useful for.
+List any specific Android versions, devices, or environments this feature would be most useful for.
 
 **Additional context**
 Add any other context or screenshots about the feature request here. 

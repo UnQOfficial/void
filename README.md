@@ -1,21 +1,21 @@
-# Void AI Code Editor Installer
+# Void AI Code Editor for Android
 
-A simple and elegant installer script for the Void AI Code Editor - a powerful tool for developers.
+A simple and elegant installer script for the Void AI Code Editor - a powerful tool for Android developers.
 
-![Void AI Code Editor](https://raw.githubusercontent.com/maheshtechnicals/void-installer/main/screenshots/header.png)
+![Void AI Code Editor](https://raw.githubusercontent.com/MaheshTechnicals/Void-Ai-Code-Editor-On-Android/main/screenshots/header.png)
 
 ## 🌟 Features
 
 - Easy installation process with dependency management
-- Support for multiple architectures (amd64, arm64, armhf)
+- Support for Android devices
 - Simple uninstallation process
 - User-friendly terminal interface
 - Automatic detection of system architecture
-- Compatible with apt and dpkg package managers
+- Compatible with Termux and other Android terminals
 
 ## 📋 Requirements
 
-- Linux-based operating system (Debian/Ubuntu preferred)
+- Android device with terminal access (Termux recommended)
 - Internet connection for downloading packages
 - Basic dependencies: `curl` and `jq` (automatically installed if missing)
 
@@ -25,7 +25,7 @@ A simple and elegant installer script for the Void AI Code Editor - a powerful t
 
 ```bash
 # Download the installer script
-curl -L -o void.sh https://raw.githubusercontent.com/maheshtechnicals/void/main/void.sh
+curl -L -o void.sh https://raw.githubusercontent.com/MaheshTechnicals/Void-Ai-Code-Editor-On-Android/main/void.sh
 
 # Make it executable
 chmod +x void.sh
@@ -38,10 +38,10 @@ chmod +x void.sh
 
 ```bash
 # Clone the repository
-git clone https://github.com/maheshtechnicals/void.git
+git clone https://github.com/MaheshTechnicals/Void-Ai-Code-Editor-On-Android.git
 
 # Navigate to the directory
-cd void
+cd Void-Ai-Code-Editor-On-Android
 
 # Make the script executable
 chmod +x void.sh
@@ -63,9 +63,9 @@ The installer provides a simple terminal-based menu:
 The script performs the following operations:
 
 1. Checks and installs required dependencies (`curl` and `jq`)
-2. Detects your system architecture (amd64, arm64, or armhf)
+2. Detects your system architecture (arm64, armhf)
 3. Fetches the latest release URL from GitHub
-4. Downloads and installs the appropriate package for your system
+4. Downloads and installs the appropriate package for your Android device
 
 ## 👨‍💻 Author
 
@@ -77,7 +77,7 @@ MIT License - see the [LICENSE](LICENSE) file for details
 
 ## 🤝 Contributing
 
-Contributions, issues, and feature requests are welcome! Feel free to check the [issues page](https://github.com/maheshtechnicals/void/issues).
+Contributions, issues, and feature requests are welcome! Feel free to check the [issues page](https://github.com/MaheshTechnicals/Void-Ai-Code-Editor-On-Android/issues).
 
 ## ⭐ Star this Repository
 

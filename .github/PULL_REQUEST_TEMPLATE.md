@@ -21,9 +21,10 @@ Please describe the tests that you ran to verify your changes. Provide instructi
 - [ ] Test B
 
 **Test Configuration**:
-* Operating System:
+* Android Version:
+* Device Model:
 * Architecture:
-* Bash version:
+* Termux Version:
 
 ## Checklist:
 
@@ -32,5 +33,5 @@ Please describe the tests that you ran to verify your changes. Provide instructi
 - [ ] I have commented my code, particularly in hard-to-understand areas
 - [ ] I have made corresponding changes to the documentation
 - [ ] My changes generate no new warnings
-- [ ] I have tested my changes on multiple environments (if applicable)
+- [ ] I have tested my changes on multiple Android devices (if applicable)
 - [ ] Any dependent changes have been merged and published in downstream modules 

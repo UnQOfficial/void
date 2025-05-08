@@ -1,6 +1,6 @@
-# Contributing to Void AI Code Editor Installer
+# Contributing to Void AI Code Editor for Android
 
-Thank you for considering contributing to the Void AI Code Editor Installer! This document provides guidelines and instructions for contributing to the project.
+Thank you for considering contributing to the Void AI Code Editor for Android! This document provides guidelines and instructions for contributing to the project.
 
 ## Code of Conduct
 
@@ -16,7 +16,7 @@ If you find a bug, please create an issue with the following information:
 - Steps to reproduce the issue
 - Expected behavior
 - Actual behavior
-- Your operating system and bash version
+- Your Android version and device model
 - Any relevant logs or screenshots
 
 ### Suggesting Enhancements
@@ -45,7 +45,7 @@ We welcome suggestions for enhancements! Please include:
 - Add comments for complex sections of code
 - Follow the existing code style
 - Use meaningful variable names
-- Test your script on multiple platforms if possible
+- Test your script on multiple Android devices if possible
 
 ### Commit Messages
 
@@ -57,8 +57,9 @@ We welcome suggestions for enhancements! Please include:
 
 Before submitting a PR, please test your changes on:
 
-- At least one Debian-based system (Ubuntu, Debian, etc.)
-- Different architectures if possible (x86_64, ARM)
+- At least one Android device with Termux installed
+- Different Android versions if possible
+- Different device architectures if possible (ARM64, ARM)
 
 ## Questions?
 

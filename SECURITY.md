@@ -2,7 +2,7 @@
 
 ## Supported Versions
 
-The following versions of the Void AI Code Editor Installer are currently being supported with security updates:
+The following versions of the Void AI Code Editor for Android are currently being supported with security updates:
 
 | Version | Supported          |
 | ------- | ------------------ |
@@ -10,7 +10,7 @@ The following versions of the Void AI Code Editor Installer are currently being 
 
 ## Reporting a Vulnerability
 
-If you discover a security vulnerability within the Void AI Code Editor Installer, please send an email to maheshtechnicals@example.com. All security vulnerabilities will be promptly addressed.
+If you discover a security vulnerability within the Void AI Code Editor for Android, please send an email to maheshtechnicals@example.com. All security vulnerabilities will be promptly addressed.
 
 Please include the following information in your report:
 
@@ -18,6 +18,7 @@ Please include the following information in your report:
 - Steps to reproduce the issue
 - Affected version(s)
 - Potential impact
+- Android version and device model
 
 ## Security Measures
 
@@ -27,6 +28,7 @@ The installer script:
 2. Verifies the authenticity of downloaded packages (when possible)
 3. Runs with minimal required permissions
 4. Does not store sensitive information
+5. Respects Android security model
 
 ## Disclosure Policy
 
@@ -37,4 +39,4 @@ When a vulnerability is reported, we will:
 3. Release a fix as soon as possible
 4. Credit the finder (unless anonymity is requested)
 
-Thank you for helping keep the Void AI Code Editor Installer secure! 
+Thank you for helping keep the Void AI Code Editor for Android secure! 
