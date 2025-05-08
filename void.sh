@@ -19,8 +19,8 @@ print_header() {
     echo " ██  ██  ██    ██ ██ ██   ██ "
     echo "  ████    ██████  ██ ██████  "
     echo -e "${NC}"
-    echo -e "${YELLOW}   Void Ai Code Editor for Android${NC}"
-    echo -e "${CYAN}      Author: Mahesh Technicals${NC}"
+    echo -e "${YELLOW}     Void Ai Code Editor Manager${NC}"
+    echo -e "${CYAN}        Author: Mahesh Technicals${NC}"
     echo
 }
 
@@ -32,8 +32,8 @@ install_dependencies() {
         echo -e "${YELLOW}Installing missing dependencies (curl, jq)...${NC}"
 
         if command -v apt &>/dev/null; then
-            apt update
-            apt install -y curl jq
+            sudo apt update
+            sudo apt install -y curl jq
         elif command -v pkg &>/dev/null; then
             pkg update -y
             pkg install -y curl jq
@@ -67,40 +67,38 @@ install_void() {
 
     echo -e "${CYAN}🔍 Fetching download URL for $ARCH...${NC}"
     URL=$(curl -s https://api.github.com/repos/voideditor/binaries/releases/latest \
-        | jq -r --arg arch "$ARCH" '.assets[] | select(.name | endswith("_android_\($arch).deb")) | .browser_download_url')
+        | jq -r --arg arch "$ARCH" '.assets[] | select(.name | endswith("_\($arch).deb")) | .browser_download_url')
 
     if [ -z "$URL" ]; then
         echo -e "${RED}❌ No download URL found for $ARCH.${NC}"
         exit 1
     fi
 
-    DEB_FILE="/data/data/com.termux/files/usr/tmp/void_editor_${ARCH}.deb"
-    mkdir -p "$(dirname "$DEB_FILE")" 2>/dev/null || true
-    
-    echo -e "${CYAN}⬇️ Downloading Void Ai Code Editor for Android...${NC}"
+    DEB_FILE="/tmp/void_editor_${ARCH}.deb"
+    echo -e "${CYAN}⬇️ Downloading Void Ai Code Editor...${NC}"
     curl -L -o "$DEB_FILE" "$URL"
 
     echo -e "${CYAN}⚙️ Installing Void Ai Code Editor...${NC}"
     if command -v apt &>/dev/null; then
-        apt install -y "$DEB_FILE"
+        sudo apt install -y "$DEB_FILE"
     elif command -v dpkg &>/dev/null; then
-        dpkg -i "$DEB_FILE" || apt install -f -y
+        sudo dpkg -i "$DEB_FILE" || sudo apt-get install -f -y
     else
         echo -e "${RED}❌ No supported installer found.${NC}"
         exit 1
     fi
 
-    echo -e "${GREEN}✅ Void Ai Code Editor for Android installed successfully!${NC}"
+    echo -e "${GREEN}✅ Void Ai Code Editor installed successfully!${NC}"
     prompt_return
 }
 
 # Uninstall Void Editor
 uninstall_void() {
-    echo -e "${CYAN}🧹 Removing Void Ai Code Editor from Android...${NC}"
+    echo -e "${CYAN}🧹 Removing Void Ai Code Editor...${NC}"
     if command -v apt &>/dev/null; then
-        apt remove --purge -y void
+        sudo apt remove --purge -y void
     elif command -v dpkg &>/dev/null; then
-        dpkg -r void
+        sudo dpkg -r void
     else
         echo -e "${RED}❌ Unable to uninstall — no known package manager found.${NC}"
         exit 1
@@ -122,7 +120,7 @@ prompt_return() {
 # Main menu
 main_menu() {
     print_header
-    echo -e "${YELLOW}1.${NC} Install Void Ai Code Editor for Android"
+    echo -e "${YELLOW}1.${NC} Install Void Ai Code Editor"
     echo -e "${YELLOW}2.${NC} Uninstall Void Ai Code Editor"
     echo -e "${YELLOW}3.${NC} Exit"
     echo
