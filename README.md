@@ -2,7 +2,9 @@
 
 A simple and elegant installer script for the Void AI Code Editor - a powerful tool for Android developers.
 
-![Void AI Code Editor](https://raw.githubusercontent.com/MaheshTechnicals/Void-Ai-Code-Editor-On-Android/main/screenshots/header.png)
+<p align="center">
+  <img src="logo.png" alt="Void AI Code Editor" width="300">
+</p>
 
 ## 🌟 Features
 
