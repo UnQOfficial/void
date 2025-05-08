@@ -1,0 +1,14 @@
+# These owners will be the default owners for everything in the repo
+* @maheshtechnicals
+
+# Shell scripts
+*.sh @maheshtechnicals
+
+# Documentation
+*.md @maheshtechnicals
+LICENSE @maheshtechnicals
+SECURITY.md @maheshtechnicals
+CONTRIBUTING.md @maheshtechnicals
+
+# GitHub specific files
+.github/* @maheshtechnicals 

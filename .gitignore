@@ -1,0 +1,38 @@
+# Temporary files
+*.swp
+*.swo
+*~
+
+# macOS specific files
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows specific files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Log files
+*.log
+logs/
+
+# Backup files
+*.bak
+*.backup
+
+# Downloaded packages
+*.deb
+*.rpm
+*.tar.gz
+*.zip
+
+# Directories
+.vscode/
+.idea/
+tmp/
+temp/
+
+# Local environment configuration
+.env
+.env.local 
