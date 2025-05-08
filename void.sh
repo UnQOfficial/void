@@ -57,6 +57,33 @@ get_arch() {
     esac
 }
 
+# Update desktop file to add --no-sandbox flag
+update_desktop_file() {
+    DESKTOP_FILE="/usr/share/applications/void.desktop"
+    
+    if [ -f "$DESKTOP_FILE" ]; then
+        echo -e "${CYAN}🔧 Checking desktop file for --no-sandbox flag...${NC}"
+        
+        # Check if the flag is already present
+        if grep -q "Exec=/usr/share/void/void --no-sandbox %F" "$DESKTOP_FILE"; then
+            echo -e "${GREEN}✅ The desktop file already has the --no-sandbox flag.${NC}"
+        else
+            echo -e "${YELLOW}📝 Adding --no-sandbox flag to desktop file...${NC}"
+            # Use sudo with sed to replace the Exec line
+            sudo sed -i 's|Exec=/usr/share/void/void %F|Exec=/usr/share/void/void --no-sandbox %F|g' "$DESKTOP_FILE"
+            
+            # Verify the replacement
+            if grep -q "Exec=/usr/share/void/void --no-sandbox %F" "$DESKTOP_FILE"; then
+                echo -e "${GREEN}✅ Successfully updated desktop file!${NC}"
+            else
+                echo -e "${RED}❌ Failed to update desktop file.${NC}"
+            fi
+        fi
+    else
+        echo -e "${YELLOW}⚠️ Desktop file not found. Skipping update.${NC}"
+    fi
+}
+
 # Install Void Editor
 install_void() {
     ARCH=$(get_arch)
@@ -87,6 +114,9 @@ install_void() {
         echo -e "${RED}❌ No supported installer found.${NC}"
         exit 1
     fi
+
+    # Update desktop file after successful installation
+    update_desktop_file
 
     echo -e "${GREEN}✅ Void Ai Code Editor installed successfully!${NC}"
     prompt_return
