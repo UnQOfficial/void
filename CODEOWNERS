@@ -1,14 +1,14 @@
 # These owners will be the default owners for everything in the repo
-* @maheshtechnicals
+* @UnQOfficial
 
 # Shell scripts
-*.sh @maheshtechnicals
+*.sh @UnQOfficial
 
 # Documentation
-*.md @maheshtechnicals
-LICENSE @maheshtechnicals
-SECURITY.md @maheshtechnicals
-CONTRIBUTING.md @maheshtechnicals
+*.md @UnQOfficial
+LICENSE @UnQOfficial
+SECURITY.md @UnQOfficial
+CONTRIBUTING.md @UnQOfficial
 
 # GitHub specific files
-.github/* @maheshtechnicals 
+.github/* @UnQOfficial 
