@@ -1,5 +1,4 @@
 #!/bin/bash
-
 # Color Scheme - Modern & Professional
 PRIMARY='\033[0;36m'    # Cyan
 SECONDARY='\033[0;35m'  # Purple
@@ -19,6 +18,7 @@ VOID_BIN_PATH="/usr/local/bin/void"
 DESKTOP_FILE="/usr/share/applications/void.desktop"
 VERSION_FILE="/opt/void/.version"
 GITHUB_API="https://api.github.com/repos/voideditor/binaries/releases/latest"
+AUTO_INSTALL=false
 
 get_terminal_width() {
     tput cols 2>/dev/null || echo 80
@@ -173,7 +173,6 @@ install_dependencies() {
 
     if ! command -v curl &>/dev/null || ! command -v jq &>/dev/null || ! command -v tar &>/dev/null; then
         echo -e "${PRIMARY}⚙️  Installing required packages...${NC}"
-
         if command -v apt &>/dev/null; then
             animate_loading "  Updating package database" 8
             sudo apt update -qq 2>/dev/null || echo -e "${WARNING}⚠️  Some repositories failed${NC}"
@@ -214,7 +213,6 @@ Categories=Development;TextEditor;IDE;
 MimeType=text/plain;text/x-chdr;text/x-csrc;text/x-c++hdr;text/x-c++src;text/x-java;text/x-python;application/javascript;application/json;text/html;text/xml;text/css;text/markdown;
 Keywords=editor;development;programming;code;
 EOF
-
     echo -e "${SUCCESS}✅ Desktop integration completed${NC}"
 }
 
@@ -245,6 +243,109 @@ show_installation_success() {
     echo -e "${SUCCESS}${BOLD}║$(center_text "Happy Coding! 💻")║${NC}"
     echo -e "${SUCCESS}${BOLD}║$(printf "%*s" $((width)) "")║${NC}"
     echo -e "${SUCCESS}${BOLD}╚${border}╝${NC}"
+}
+
+confirm_action() {
+    local message="$1"
+    
+    # Skip confirmation in auto mode
+    if [[ "$AUTO_INSTALL" == true ]]; then
+        echo -e "${SUCCESS}${BOLD}[AUTO] $message - Proceeding automatically${NC}"
+        return 0
+    fi
+    
+    echo -e "${WARNING}${BOLD}⚠️  $message${NC}"
+    read -rp "$(echo -e "${ACCENT}${BOLD}Continue? [y/N]: ${NC}")" confirm
+    
+    if [[ "$confirm" =~ ^[Yy]$ ]]; then
+        return 0
+    else
+        echo -e "${PRIMARY}Operation cancelled${NC}"
+        return 1
+    fi
+}
+
+auto_install_void_editor() {
+    print_professional_header
+    
+    echo -e "${ACCENT}${BOLD}[AUTO INSTALL MODE] Starting automatic installation...${NC}"
+    echo
+    
+    # Check if running as root
+    if [[ $EUID -ne 0 ]]; then
+        echo -e "${ERROR}❌ Root privileges required for system installation${NC}"
+        echo -e "${WARNING}Please run with sudo: ${BOLD}sudo bash $0 -a${NC}"
+        exit 1
+    fi
+
+    local ARCH=$(get_system_info)
+    echo -e "${PRIMARY}🔍 Architecture: ${ACCENT}$(uname -m)${NC} → ${SUCCESS}${ARCH}${NC}"
+    
+    if [ "$ARCH" = "unsupported" ]; then
+        echo -e "${ERROR}❌ Architecture not supported${NC}"
+        echo -e "${WARNING}💡 Supported: x64, arm64, armhf, loong64, ppc64le, riscv64${NC}"
+        exit 1
+    fi
+
+    install_dependencies
+
+    echo -e "${PRIMARY}📡 Fetching release information...${NC}"
+    animate_loading "  Connecting to GitHub API" 6
+    
+    local LATEST_VERSION=$(get_latest_version)
+    if [ "$LATEST_VERSION" = "unknown" ]; then
+        echo -e "${ERROR}❌ Failed to fetch version information${NC}"
+        exit 1
+    fi
+
+    local CURRENT_VERSION=$(get_installed_version)
+    
+    if [ "$CURRENT_VERSION" = "$LATEST_VERSION" ]; then
+        echo -e "${SUCCESS}✅ Already up to date (${LATEST_VERSION})${NC}"
+        echo -e "${PRIMARY}${BOLD}Auto installation completed - no updates needed${NC}"
+        exit 0
+    fi
+
+    local FILENAME="Void-linux-${ARCH}-${LATEST_VERSION}.tar.gz"
+    local URL="https://github.com/voideditor/binaries/releases/download/${LATEST_VERSION}/${FILENAME}"
+    
+    echo
+    echo -e "${PRIMARY}📦 Package: ${ACCENT}${FILENAME}${NC}"
+    echo -e "${PRIMARY}🌐 Source: ${DIM}GitHub Releases${NC}"
+    echo
+
+    local DOWNLOAD_PATH="/tmp/${FILENAME}"
+    
+    echo -e "${PRIMARY}⬇️  Downloading Void Editor ${LATEST_VERSION}...${NC}"
+    if curl -L --progress-bar -o "$DOWNLOAD_PATH" "$URL" 2>/dev/null; then
+        echo -e "${SUCCESS}✅ Download completed successfully${NC}"
+    else
+        echo -e "${ERROR}❌ Download failed - Check internet connection${NC}"
+        exit 1
+    fi
+
+    echo -e "${PRIMARY}📁 Installing to system...${NC}"
+    
+    sudo mkdir -p "$VOID_INSTALL_DIR" 2>/dev/null
+    sudo mkdir -p "$(dirname "$VOID_BIN_PATH")" 2>/dev/null
+    
+    animate_loading "  Extracting archive" 8
+    sudo tar -xzf "$DOWNLOAD_PATH" -C "$VOID_INSTALL_DIR" --strip-components=1 2>/dev/null
+    
+    animate_loading "  Creating system links" 5
+    sudo ln -sf "$VOID_INSTALL_DIR/void" "$VOID_BIN_PATH" 2>/dev/null
+    sudo chmod +x "$VOID_BIN_PATH" 2>/dev/null
+    
+    echo "$LATEST_VERSION" | sudo tee "$VERSION_FILE" > /dev/null 2>&1
+    
+    create_desktop_integration
+    
+    rm -f "$DOWNLOAD_PATH" 2>/dev/null
+    
+    show_installation_success "$LATEST_VERSION"
+    
+    echo -e "${SUCCESS}${BOLD}🎉 AUTO INSTALLATION COMPLETED SUCCESSFULLY! 🎉${NC}"
+    echo -e "${PRIMARY}Void Editor is now ready to use!${NC}"
 }
 
 install_void_editor() {
@@ -464,12 +565,68 @@ display_main_menu() {
     esac
 }
 
-# Initialize Application
-echo -e "${PRIMARY}${BOLD}Initializing Void Manager...${NC}"
-animate_loading "System initialization" 8
-echo
+show_help() {
+    print_professional_header
+    echo -e "${INFO}${BOLD}Void Editor Manager v2.0${NC}"
+    echo -e "${ACCENT}Usage: $0 [OPTION]${NC}"
+    echo
+    echo -e "${PRIMARY}${BOLD}Options:${NC}"
+    echo -e "  ${SUCCESS}-a, --auto-install${NC}  Auto install Void Editor (no prompts)"
+    echo -e "  ${INFO}-i, --install${NC}       Interactive installation mode"
+    echo -e "  ${ERROR}-u, --uninstall${NC}     Uninstall Void Editor"
+    echo -e "  ${SECONDARY}-s, --status${NC}        Show detailed system information"
+    echo -e "  ${DIM}-h, --help${NC}          Show this help message"
+    echo
+    echo -e "${ACCENT}${BOLD}Examples:${NC}"
+    echo -e "  ${SUCCESS}sudo bash void.sh -a${NC}     # Auto install without prompts"
+    echo -e "  ${INFO}sudo bash void.sh -i${NC}     # Interactive installation"
+    echo -e "  ${SECONDARY}bash void.sh -s${NC}          # Show system status"
+    echo
+    echo -e "${WARNING}Note: Root privileges required for installation/uninstallation${NC}"
+}
 
-# Main Application Loop
-while true; do
-    display_main_menu
-done
+# Command line argument parsing
+case "${1:-}" in
+    -a|--auto-install)
+        AUTO_INSTALL=true
+        auto_install_void_editor
+        ;;
+    -i|--install)
+        if [[ $EUID -ne 0 ]]; then
+            echo -e "${ERROR}❌ Root privileges required${NC}"
+            echo -e "${WARNING}Please run: ${BOLD}sudo bash $0 -i${NC}"
+            exit 1
+        fi
+        install_dependencies
+        install_void_editor
+        exit 0
+        ;;
+    -u|--uninstall)
+        if [[ $EUID -ne 0 ]]; then
+            echo -e "${ERROR}❌ Root privileges required${NC}"
+            echo -e "${WARNING}Please run: ${BOLD}sudo bash $0 -u${NC}"
+            exit 1
+        fi
+        uninstall_void_editor
+        exit 0
+        ;;
+    -s|--status)
+        show_detailed_information
+        exit 0
+        ;;
+    -h|--help)
+        show_help
+        exit 0
+        ;;
+    *)
+        # Initialize Application
+        echo -e "${PRIMARY}${BOLD}Initializing Void Manager...${NC}"
+        animate_loading "System initialization" 8
+        echo
+
+        # Main Application Loop
+        while true; do
+            display_main_menu
+        done
+        ;;
+esac
