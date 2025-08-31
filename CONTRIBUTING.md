@@ -4,7 +4,6 @@
 
 ![Contributors Welcome](https://img.shields.io/badge/Contributors-Welcome-brightgreen?style=for-the-badge&logo=github)
 ![Code Quality](https://img.shields.io/badge/Code%20Quality-High-blue?style=for-the-badge&logo=codeclimate)
-![Community](https://img.shields.io/badge/Community-Friendly-purple?style=for-the-badge&logo=discord)
 
 **Thank you for your interest in contributing to Void AI Code Editor!**
 
