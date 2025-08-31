@@ -1,160 +1,388 @@
 #!/bin/bash
 
-set -e
 
-# Colors
+
+# Enhanced Colors and Styles
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 CYAN='\033[0;36m'
 YELLOW='\033[1;33m'
-NC='\033[0m' # No Color
+BLUE='\033[0;34m'
+PURPLE='\033[0;35m'
+WHITE='\033[1;37m'
+BOLD='\033[1m'
+DIM='\033[2m'
+BLINK='\033[5m'
+UNDERLINE='\033[4m'
+NC='\033[0m'
 
-# Stylish VOID Header
+# Global Variables
+VOID_INSTALL_DIR="/opt/void"
+VOID_BIN_PATH="/usr/local/bin/void"
+DESKTOP_FILE="/usr/share/applications/void.desktop"
+VERSION_FILE="/opt/void/.version"
+
+# Get terminal dimensions
+get_terminal_width() {
+    tput cols 2>/dev/null || echo 80
+}
+
+# Create centered text
+center_text() {
+    local text="$1"
+    local width=$(get_terminal_width)
+    local padding=$(( (width - ${#text}) / 2 ))
+    printf "%*s%s\n" $padding "" "$text"
+}
+
+# Enhanced VOID Header with responsive design
 print_header() {
     clear
-    echo -e "${CYAN}"
-    echo "██    ██  ██████  ██ ██████  "
-    echo "██    ██ ██    ██ ██ ██   ██ "
-    echo "██    ██ ██    ██ ██ ██   ██ "
-    echo " ██  ██  ██    ██ ██ ██   ██ "
-    echo "  ████    ██████  ██ ██████  "
+    local width=$(get_terminal_width)
+    local border=$(printf "═%.0s" $(seq 1 $width))
+    
+    echo -e "${PURPLE}${BOLD}"
+    echo "╔${border}╗"
+    echo "║$(printf "%*s" $((width)) "")║"
+    center_text "██    ██  ██████  ██ ██████  "
+    center_text "██    ██ ██    ██ ██ ██   ██ "
+    center_text "██    ██ ██    ██ ██ ██   ██ "
+    center_text " ██  ██  ██    ██ ██ ██   ██ "
+    center_text "  ████    ██████  ██ ██████  "
+    echo "║$(printf "%*s" $((width)) "")║"
+    echo "╚${border}╝"
     echo -e "${NC}"
-    echo -e "${YELLOW}     Void Ai Code Editor Manager${NC}"
-    echo -e "${CYAN}        Author: Mahesh Technicals${NC}"
+    
+    echo -e "${CYAN}${BOLD}$(center_text "🚀 VOID AI CODE EDITOR MANAGER 🚀")${NC}"
+    echo -e "${YELLOW}${BOLD}$(center_text "Author: Sandeep Gaddam")${NC}"
+    echo -e "${DIM}${BLUE}$(center_text "GitHub: github.com/UnQOfficial/void")${NC}"
+    echo
+    echo -e "${GREEN}${BOLD}${border}${NC}"
     echo
 }
 
-# Ensure curl and jq are installed
-install_dependencies() {
-    echo -e "${CYAN}📦 Checking dependencies...${NC}"
+# Advanced loading animation with progress
+show_loading() {
+    local message="$1"
+    local duration="${2:-3}"
+    local width=$(get_terminal_width)
+    
+    echo -ne "${CYAN}${message}${NC}"
+    
+    for i in $(seq 1 $duration); do
+        for char in '⠋' '⠙' '⠹' '⠸' '⠼' '⠴' '⠦' '⠧' '⠇' '⠏'; do
+            local progress=$(( (i * 10) / duration ))
+            local bar=$(printf "█%.0s" $(seq 1 $progress))
+            local empty=$(printf "░%.0s" $(seq 1 $((10 - progress))))
+            echo -ne "\r${CYAN}${message} ${YELLOW}${char} ${GREEN}[${bar}${empty}] ${progress}0%${NC}"
+            sleep 0.1
+        done
+    done
+    echo -e "\r${CYAN}${message} ${GREEN}✓ Complete!$(printf "%*s" $((width - ${#message} - 12)) "")${NC}"
+}
 
-    if ! command -v curl &>/dev/null || ! command -v jq &>/dev/null; then
-        echo -e "${YELLOW}Installing missing dependencies (curl, jq)...${NC}"
+# Check current installed version
+get_installed_version() {
+    if [ -f "$VERSION_FILE" ]; then
+        cat "$VERSION_FILE"
+    else
+        echo "Not installed"
+    fi
+}
+
+# Get latest version from GitHub
+get_latest_version() {
+    curl -s https://api.github.com/repos/voideditor/binaries/releases/latest | jq -r '.tag_name' 2>/dev/null || echo "unknown"
+}
+
+# Enhanced status display
+show_status() {
+    local width=$(get_terminal_width)
+    local border=$(printf "─%.0s" $(seq 1 $((width - 4))))
+    
+    echo -e "${BLUE}${BOLD}┌─${border}─┐${NC}"
+    echo -e "${BLUE}${BOLD}│${NC} ${WHITE}${BOLD}System Status${NC}$(printf "%*s" $((width - 16)) "")${BLUE}${BOLD}│${NC}"
+    echo -e "${BLUE}${BOLD}├─${border}─┤${NC}"
+    
+    local current_version=$(get_installed_version)
+    local latest_version=$(get_latest_version)
+    local arch=$(uname -m)
+    
+    printf "${BLUE}${BOLD}│${NC} ${CYAN}Architecture:${NC} %-20s%*s${BLUE}${BOLD}│${NC}\n" "$arch" $((width - 36)) ""
+    printf "${BLUE}${BOLD}│${NC} ${CYAN}Installed:${NC}    %-20s%*s${BLUE}${BOLD}│${NC}\n" "$current_version" $((width - 36)) ""
+    printf "${BLUE}${BOLD}│${NC} ${CYAN}Latest:${NC}       %-20s%*s${BLUE}${BOLD}│${NC}\n" "$latest_version" $((width - 36)) ""
+    
+    if [ "$current_version" != "Not installed" ] && [ "$current_version" != "$latest_version" ]; then
+        printf "${BLUE}${BOLD}│${NC} ${YELLOW}${BLINK}Update Available!${NC}%*s${BLUE}${BOLD}│${NC}\n" $((width - 22)) ""
+    elif [ "$current_version" = "$latest_version" ]; then
+        printf "${BLUE}${BOLD}│${NC} ${GREEN}Up to date!${NC}%*s${BLUE}${BOLD}│${NC}\n" $((width - 16)) ""
+    fi
+    
+    echo -e "${BLUE}${BOLD}└─${border}─┘${NC}"
+    echo
+}
+
+# Fix repositories with better handling
+fix_repositories() {
+    echo -e "${YELLOW}🔧 Optimizing system repositories...${NC}"
+    
+    if [ -f /etc/apt/sources.list ]; then
+        show_loading "Creating backup" 2
+        sudo cp /etc/apt/sources.list /etc/apt/sources.list.backup.$(date +%Y%m%d_%H%M%S)
+        
+        show_loading "Cleaning broken repositories" 2
+        sudo sed -i '/buster/d' /etc/apt/sources.list
+        
+        if [ -d /etc/apt/sources.list.d ]; then
+            sudo find /etc/apt/sources.list.d -name "*.list" -exec sed -i '/buster/d' {} \;
+        fi
+    fi
+    
+    echo -e "${GREEN}✅ Repository optimization completed!${NC}"
+    echo
+}
+
+# Enhanced dependency installation
+install_dependencies() {
+    local width=$(get_terminal_width)
+    local border=$(printf "═%.0s" $(seq 1 $width))
+    
+    echo -e "${CYAN}${BOLD}╔${border}╗${NC}"
+    echo -e "${CYAN}${BOLD}║$(center_text "📦 DEPENDENCY MANAGEMENT")║${NC}"
+    echo -e "${CYAN}${BOLD}╚${border}╝${NC}"
+    echo
+
+    fix_repositories
+
+    if ! command -v curl &>/dev/null || ! command -v jq &>/dev/null || ! command -v tar &>/dev/null; then
+        echo -e "${YELLOW}⚙️  Installing required packages...${NC}"
 
         if command -v apt &>/dev/null; then
-            sudo apt update
-            sudo apt install -y curl jq
+            show_loading "Updating package database" 3
+            sudo apt update -qq 2>/dev/null || echo -e "${YELLOW}⚠️  Some repos failed, continuing...${NC}"
+            
+            show_loading "Installing dependencies (curl, jq, tar)" 4
+            sudo apt install -y curl jq tar --fix-missing -qq
         elif command -v pkg &>/dev/null; then
-            pkg update -y
-            pkg install -y curl jq
+            show_loading "Updating Termux packages" 3
+            pkg update -y -qq
+            show_loading "Installing dependencies" 3
+            pkg install -y curl jq tar -qq
         else
-            echo -e "${RED}❌ No supported package manager found.${NC}"
+            echo -e "${RED}❌ No supported package manager found!${NC}"
             exit 1
         fi
     else
-        echo -e "${GREEN}✅ Dependencies are already installed.${NC}"
+        echo -e "${GREEN}✅ All dependencies satisfied!${NC}"
     fi
+    
+    echo -e "${GREEN}${BOLD}${border}${NC}"
     echo
 }
 
-# Detect architecture
+# Enhanced architecture detection
 get_arch() {
-    case "$(uname -m)" in
+    local arch=$(uname -m)
+    
+    case "$arch" in
         aarch64) echo "arm64" ;;
         armv7l | armv6l) echo "armhf" ;;
-        x86_64) echo "amd64" ;;
+        x86_64) echo "x64" ;;
+        loongarch64) echo "loong64" ;;
+        ppc64le) echo "ppc64le" ;;
+        riscv64) echo "riscv64" ;;
         *) echo "unsupported" ;;
     esac
 }
 
-# Update desktop file to add --no-sandbox flag
-update_desktop_file() {
-    DESKTOP_FILE="/usr/share/applications/void.desktop"
-    
-    if [ -f "$DESKTOP_FILE" ]; then
-        echo -e "${CYAN}🔧 Checking desktop file for --no-sandbox flag...${NC}"
-        
-        # Check if the flag is already present
-        if grep -q "Exec=/usr/share/void/void --no-sandbox %F" "$DESKTOP_FILE"; then
-            echo -e "${GREEN}✅ The desktop file already has the --no-sandbox flag.${NC}"
-        else
-            echo -e "${YELLOW}📝 Adding --no-sandbox flag to desktop file...${NC}"
-            # Use sudo with sed to replace the Exec line
-            sudo sed -i 's|Exec=/usr/share/void/void %F|Exec=/usr/share/void/void --no-sandbox %F|g' "$DESKTOP_FILE"
-            
-            # Verify the replacement
-            if grep -q "Exec=/usr/share/void/void --no-sandbox %F" "$DESKTOP_FILE"; then
-                echo -e "${GREEN}✅ Successfully updated desktop file!${NC}"
-            else
-                echo -e "${RED}❌ Failed to update desktop file.${NC}"
-            fi
-        fi
-    else
-        echo -e "${YELLOW}⚠️ Desktop file not found. Skipping update.${NC}"
-    fi
+# Display architecture info
+show_arch_info() {
+    local arch=$(uname -m)
+    local mapped_arch=$(get_arch)
+    echo -e "${CYAN}🔍 Architecture detected: ${YELLOW}${BOLD}${arch}${NC} → ${GREEN}${mapped_arch}${NC}"
 }
 
-# Install Void Editor
+# Create desktop entry
+create_desktop_entry() {
+    echo -e "${CYAN}🖥️  Creating desktop integration...${NC}"
+    
+    sudo mkdir -p "$(dirname "$DESKTOP_FILE")"
+    
+    sudo tee "$DESKTOP_FILE" > /dev/null << EOF
+[Desktop Entry]
+Name=Void Editor
+Comment=Advanced Code Editor
+Exec=$VOID_BIN_PATH --no-sandbox %F
+Icon=void
+Terminal=false
+Type=Application
+Categories=Development;TextEditor;
+MimeType=text/plain;text/x-chdr;text/x-csrc;text/x-c++hdr;text/x-c++src;text/x-java;text/x-dsrc;text/x-pascal;text/x-perl;text/x-python;application/x-php;application/x-httpd-php3;application/x-httpd-php4;application/x-httpd-php5;application/javascript;application/json;text/html;text/xml;text/css;
+EOF
+
+    echo -e "${GREEN}✅ Desktop entry created successfully!${NC}"
+}
+
+# Install or update Void Editor
 install_void() {
-    ARCH=$(get_arch)
+    local width=$(get_terminal_width)
+    local border=$(printf "═%.0s" $(seq 1 $width))
+    
+    echo -e "${PURPLE}${BOLD}╔${border}╗${NC}"
+    echo -e "${PURPLE}${BOLD}║$(center_text "🚀 INSTALLATION / UPDATE MODE")║${NC}"
+    echo -e "${PURPLE}${BOLD}╚${border}╝${NC}"
+    echo
+    
+    show_arch_info
+    local ARCH=$(get_arch)
     if [ "$ARCH" = "unsupported" ]; then
-        echo -e "${RED}❌ Unsupported architecture: $(uname -m)${NC}"
-        exit 1
+        echo -e "${RED}❌ Architecture $(uname -m) is not supported!${NC}"
+        echo -e "${YELLOW}💡 Supported: x64, arm64, armhf, loong64, ppc64le, riscv64${NC}"
+        return 1
     fi
 
-    echo -e "${CYAN}🔍 Fetching download URL for $ARCH...${NC}"
-    URL=$(curl -s https://api.github.com/repos/voideditor/binaries/releases/latest \
-        | jq -r --arg arch "$ARCH" '.assets[] | select(.name | endswith("_\($arch).deb")) | .browser_download_url')
-
-    if [ -z "$URL" ]; then
-        echo -e "${RED}❌ No download URL found for $ARCH.${NC}"
-        exit 1
+    show_loading "Fetching latest release information" 4
+    local LATEST_VERSION=$(get_latest_version)
+    
+    if [ "$LATEST_VERSION" = "unknown" ]; then
+        echo -e "${RED}❌ Failed to fetch version information!${NC}"
+        return 1
     fi
 
-    DEB_FILE="/tmp/void_editor_${ARCH}.deb"
-    echo -e "${CYAN}⬇️ Downloading Void Ai Code Editor...${NC}"
-    curl -L -o "$DEB_FILE" "$URL"
+    local CURRENT_VERSION=$(get_installed_version)
+    
+    if [ "$CURRENT_VERSION" = "$LATEST_VERSION" ]; then
+        echo -e "${GREEN}✅ Void Editor is already up to date! (${LATEST_VERSION})${NC}"
+        return 0
+    fi
 
-    echo -e "${CYAN}⚙️ Installing Void Ai Code Editor...${NC}"
-    if command -v apt &>/dev/null; then
-        sudo apt install -y "$DEB_FILE"
-    elif command -v dpkg &>/dev/null; then
-        sudo dpkg -i "$DEB_FILE" || sudo apt-get install -f -y
+    # Construct download URL
+    local FILENAME="Void-linux-${ARCH}-${LATEST_VERSION}.tar.gz"
+    local URL="https://github.com/voideditor/binaries/releases/download/${LATEST_VERSION}/${FILENAME}"
+    
+    echo -e "${CYAN}📦 Package: ${YELLOW}${FILENAME}${NC}"
+    echo -e "${CYAN}🔗 URL: ${DIM}${URL}${NC}"
+    echo
+
+    local DOWNLOAD_PATH="/tmp/${FILENAME}"
+    
+    echo -e "${CYAN}⬇️  Downloading Void Editor ${LATEST_VERSION}...${NC}"
+    if curl -L --progress-bar -o "$DOWNLOAD_PATH" "$URL"; then
+        echo -e "${GREEN}✅ Download completed!${NC}"
     else
-        echo -e "${RED}❌ No supported installer found.${NC}"
-        exit 1
+        echo -e "${RED}❌ Download failed! Check internet connection.${NC}"
+        return 1
     fi
 
-    # Update desktop file after successful installation
-    update_desktop_file
-
-    echo -e "${GREEN}✅ Void Ai Code Editor installed successfully!${NC}"
+    echo -e "${CYAN}📁 Installing to system...${NC}"
+    
+    # Create installation directory
+    sudo mkdir -p "$VOID_INSTALL_DIR"
+    sudo mkdir -p "$(dirname "$VOID_BIN_PATH")"
+    
+    show_loading "Extracting archive" 3
+    sudo tar -xzf "$DOWNLOAD_PATH" -C "$VOID_INSTALL_DIR" --strip-components=1
+    
+    show_loading "Creating system links" 2
+    sudo ln -sf "$VOID_INSTALL_DIR/void" "$VOID_BIN_PATH"
+    sudo chmod +x "$VOID_BIN_PATH"
+    
+    # Save version info
+    echo "$LATEST_VERSION" | sudo tee "$VERSION_FILE" > /dev/null
+    
+    # Create desktop entry
+    create_desktop_entry
+    
+    # Cleanup
+    rm -f "$DOWNLOAD_PATH"
+    
+    echo -e "${GREEN}${BOLD}╔${border}╗${NC}"
+    echo -e "${GREEN}${BOLD}║$(center_text "🎉 SUCCESS!")║${NC}"
+    echo -e "${GREEN}${BOLD}║$(center_text "Void Editor ${LATEST_VERSION} installed!")║${NC}"
+    echo -e "${GREEN}${BOLD}║$(center_text "Launch: 'void' or from applications menu")║${NC}"
+    echo -e "${GREEN}${BOLD}╚${border}╝${NC}"
+    
     prompt_return
 }
 
 # Uninstall Void Editor
 uninstall_void() {
-    echo -e "${CYAN}🧹 Removing Void Ai Code Editor...${NC}"
-    if command -v apt &>/dev/null; then
-        sudo apt remove --purge -y void
-    elif command -v dpkg &>/dev/null; then
-        sudo dpkg -r void
-    else
-        echo -e "${RED}❌ Unable to uninstall — no known package manager found.${NC}"
-        exit 1
+    local width=$(get_terminal_width)
+    local border=$(printf "═%.0s" $(seq 1 $width))
+    
+    echo -e "${RED}${BOLD}╔${border}╗${NC}"
+    echo -e "${RED}${BOLD}║$(center_text "🗑️  UNINSTALLATION MODE")║${NC}"
+    echo -e "${RED}${BOLD}╚${border}╝${NC}"
+    echo
+    
+    if [ ! -f "$VERSION_FILE" ]; then
+        echo -e "${YELLOW}⚠️  Void Editor is not installed via this manager.${NC}"
+        prompt_return
+        return
     fi
-    echo -e "${GREEN}✅ Void Ai Code Editor uninstalled.${NC}"
+    
+    local current_version=$(get_installed_version)
+    echo -e "${YELLOW}⚠️  About to remove Void Editor ${current_version}${NC}"
+    echo -e "${RED}${BOLD}⚠️  This action cannot be undone!${NC}"
+    echo
+    
+    read -rp "$(echo -e "${RED}Type '${BOLD}CONFIRM${NC}${RED}' to proceed: ${NC}")" confirm
+    
+    if [ "$confirm" != "CONFIRM" ]; then
+        echo -e "${CYAN}Operation cancelled.${NC}"
+        prompt_return
+        return
+    fi
+    
+    show_loading "Removing installation directory" 3
+    sudo rm -rf "$VOID_INSTALL_DIR"
+    
+    show_loading "Removing system links" 2
+    sudo rm -f "$VOID_BIN_PATH"
+    
+    show_loading "Removing desktop integration" 2
+    sudo rm -f "$DESKTOP_FILE"
+    
+    echo -e "${GREEN}✅ Void Editor completely removed!${NC}"
     prompt_return
 }
 
-# Ask before returning to menu
+# Enhanced return prompt
 prompt_return() {
+    local width=$(get_terminal_width)
+    local border=$(printf "─%.0s" $(seq 1 $((width - 4))))
+    
     echo
-    read -rp "$(echo -e "${YELLOW}↩️  Return to menu? [Y/n]: ${NC}")" back
-    if [[ "$back" =~ ^[Nn]$ ]]; then
-        echo -e "${GREEN}👋 Exiting. Goodbye!${NC}"
-        exit 0
-    fi
+    echo -e "${CYAN}${BOLD}┌─${border}─┐${NC}"
+    echo -e "${CYAN}${BOLD}│$(center_text "Press any key to return to main menu...")│${NC}"
+    echo -e "${CYAN}${BOLD}└─${border}─┘${NC}"
+    
+    read -n 1 -s
 }
 
-# Main menu
+# Enhanced main menu
 main_menu() {
     print_header
-    echo -e "${YELLOW}1.${NC} Install Void Ai Code Editor"
-    echo -e "${YELLOW}2.${NC} Uninstall Void Ai Code Editor"
-    echo -e "${YELLOW}3.${NC} Exit"
+    show_status
+    
+    local width=$(get_terminal_width)
+    local border=$(printf "═%.0s" $(seq 1 $width))
+    
+    echo -e "${WHITE}${BOLD}╔${border}╗${NC}"
+    echo -e "${WHITE}${BOLD}║$(center_text "🎯 AVAILABLE OPTIONS")║${NC}"
+    echo -e "${WHITE}${BOLD}╚${border}╝${NC}"
     echo
-    read -rp "$(echo -e "${CYAN}👉 Choose an option (1-3): ${NC}")" choice
+    
+    echo -e "${GREEN}${BOLD} 1.${NC} ${CYAN}🚀 Install/Update Void Editor${NC}"
+    echo -e "${RED}${BOLD} 2.${NC} ${YELLOW}🗑️  Uninstall Void Editor${NC}"
+    echo -e "${BLUE}${BOLD} 3.${NC} ${PURPLE}📊 Show Detailed Status${NC}"
+    echo -e "${WHITE}${BOLD} 4.${NC} ${DIM}🚪 Exit Application${NC}"
+    echo
+    
+    echo -e "${CYAN}${BOLD}${border}${NC}"
+    echo
+    
+    read -rp "$(echo -e "${PURPLE}${BOLD}👉 Select option (1-4): ${NC}")" choice
     echo
 
     case "$choice" in
@@ -166,18 +394,59 @@ main_menu() {
             uninstall_void
             ;;
         3)
-            echo -e "${GREEN}👋 Exiting. Have a great day!${NC}"
+            show_detailed_status
+            ;;
+        4)
+            echo -e "${GREEN}${BOLD}╔${border}╗${NC}"
+            echo -e "${GREEN}${BOLD}║$(center_text "👋 Thank you for using Void Manager!")║${NC}"
+            echo -e "${GREEN}${BOLD}║$(center_text "Happy coding! 🚀")║${NC}"
+            echo -e "${GREEN}${BOLD}╚${border}╝${NC}"
             exit 0
             ;;
         *)
-            echo -e "${RED}❌ Invalid option. Try again.${NC}"
-            sleep 1
-            main_menu
+            echo -e "${RED}❌ Invalid selection! Please choose 1-4.${NC}"
+            sleep 2
             ;;
     esac
 }
 
-# Run menu loop
+# Detailed status display
+show_detailed_status() {
+    local width=$(get_terminal_width)
+    local border=$(printf "═%.0s" $(seq 1 $width))
+    
+    echo -e "${BLUE}${BOLD}╔${border}╗${NC}"
+    echo -e "${BLUE}${BOLD}║$(center_text "📊 DETAILED SYSTEM STATUS")║${NC}"
+    echo -e "${BLUE}${BOLD}╚${border}╝${NC}"
+    echo
+    
+    echo -e "${CYAN}${BOLD}System Information:${NC}"
+    echo -e "  OS: $(uname -o)"
+    echo -e "  Kernel: $(uname -r)"
+    echo -e "  Architecture: $(uname -m)"
+    echo
+    
+    echo -e "${CYAN}${BOLD}Void Editor Status:${NC}"
+    if [ -f "$VERSION_FILE" ]; then
+        echo -e "  Installation: ${GREEN}✓ Installed${NC}"
+        echo -e "  Version: $(cat "$VERSION_FILE")"
+        echo -e "  Location: $VOID_INSTALL_DIR"
+        echo -e "  Binary: $VOID_BIN_PATH"
+        echo -e "  Desktop Entry: $([ -f "$DESKTOP_FILE" ] && echo "${GREEN}✓${NC}" || echo "${RED}✗${NC}")"
+    else
+        echo -e "  Installation: ${RED}✗ Not installed${NC}"
+    fi
+    
+    echo
+    prompt_return
+}
+
+# Startup message
+echo -e "${CYAN}${BOLD}Initializing Advanced Void Manager...${NC}"
+show_loading "System check" 2
+echo
+
+# Main execution loop
 while true; do
     main_menu
 done
