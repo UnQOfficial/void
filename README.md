@@ -433,6 +433,3 @@ Special thanks to:
 [
 
 </div>
-
-[1](https://img.shields.io/badge/Void-Editor-purple?style=for-the-badge&logo=android)
-[2](https://img.shields.io/badge/Platform-Android-green?style=for-the-badge&logo=andro)
