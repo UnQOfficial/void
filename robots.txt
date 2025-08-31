@@ -3,4 +3,4 @@ User-agent: *
 Allow: /
 
 # Sitemap location
-Sitemap: https://github.com/MaheshTechnicals/Void-Ai-Code-Editor-On-Android/sitemap.xml 
+Sitemap: https://github.com/UnQOfficial/void/sitemap.xml 
