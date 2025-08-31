@@ -10,7 +10,7 @@ The following versions of the Void AI Code Editor for Android are currently bein
 
 ## Reporting a Vulnerability
 
-If you discover a security vulnerability within the Void AI Code Editor for Android, please send an email to unofficial@gmail.com. All security vulnerabilities will be promptly addressed.
+If you discover a security vulnerability within the Void AI Code Editor for Android, please send an email to devunq@gmail.com. All security vulnerabilities will be promptly addressed.
 
 Please include the following information in your report:
 
