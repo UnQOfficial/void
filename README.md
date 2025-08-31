@@ -27,7 +27,7 @@ A simple and elegant installer script for the Void AI Code Editor - a powerful t
 
 ```bash
 # Download the installer script
-curl -L -o void.sh https://raw.githubusercontent.com/MaheshTechnicals/Void-Ai-Code-Editor-On-Android/main/void.sh
+curl -L -o void.sh https://raw.githubusercontent.com/UnQOfficial/void/main/void.sh
 
 # Make it executable
 chmod +x void.sh
@@ -40,10 +40,10 @@ chmod +x void.sh
 
 ```bash
 # Clone the repository
-git clone https://github.com/MaheshTechnicals/Void-Ai-Code-Editor-On-Android.git
+git clone https://github.com/UnQOfficial/void.git
 
 # Navigate to the directory
-cd Void-Ai-Code-Editor-On-Android
+cd void
 
 # Make the script executable
 chmod +x void.sh
@@ -71,7 +71,7 @@ The script performs the following operations:
 
 ## 👨‍💻 Author
 
-Mahesh Technicals
+Sandeep Gaddam
 
 ## 📜 License
 
@@ -79,7 +79,7 @@ MIT License - see the [LICENSE](LICENSE) file for details
 
 ## 🤝 Contributing
 
-Contributions, issues, and feature requests are welcome! Feel free to check the [issues page](https://github.com/MaheshTechnicals/Void-Ai-Code-Editor-On-Android/issues).
+Contributions, issues, and feature requests are welcome! Feel free to check the [issues page](https://github.com/UnQOfficial/void/issues).
 
 ## ⭐ Star this Repository
 
